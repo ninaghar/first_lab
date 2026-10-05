@@ -1,41 +1,44 @@
 name: Testing with Pytest
+
 on:
-    push:
-        branches:
-            - main
-        paths:
-            - 'Assignment01/Lab01/**'
-            - '.github/workflows/pytest_action_A1L1.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '**'
+      - '.github/workflows/pytest_action.yml'
+
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
 
-            - name: Set up Python
-              uses: actions/setup-python@v4
-              with:
-                python-version: 3.11
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Install dependencies
-              run: pip install -r Assignment01/Lab01/deps.txt
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-            - name: Run tests and generate XML report
-              run: pytest Assignment01/Lab01/test/test_pytest.py --junitxml=Assignment01/Lab01/test/pytest-report.xml
-              continue-on-error: false
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-            - name: Upload test results
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                name: test-results
-                path: Assignment01/Lab01/test/pytest-report.xml
+      - name: Run tests and generate XML report
+        run: PYTHONPATH=. pytest test/test_pytest.py --junitxml=test/pytest-report.xml
+        continue-on-error: false
 
-            - name: Notify on success
-              if: success()
-              run: echo "Tests passed successfully"
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test/pytest-report.xml
 
-            - name: Notify on failure
-              if: failure()
-              run: echo "Tests failed"
+      - name: Notify on success
+        if: success()
+        run: echo "Tests passed successfully"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "Tests failed"
